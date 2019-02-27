@@ -5,13 +5,20 @@ import { SketchField, Tools } from 'react-sketch';
 import { FaMousePointer, FaPen, FaCircle, FaSquare, FaTrash } from 'react-icons/fa';
 
 import shortid from 'shortid';
+import Chatkit from '@pusher/chatkit-client';
+
+import ChatBox from '../components/ChatBox';
+
+const CHATKIT_TOKEN_PROVIDER_ENDPOINT = "https://us1.pusherplatform.io/services/chatkit_token_provider/v1/f3c34d9b-c94b-4094-a8a9-71404b4b0a63/token";
+const CHATKIT_INSTANCE_LOCATOR = process.env.REACT_APP_CHATKIT_INSTANCE_ID;
 
 class WhiteboardScreen extends Component {
  
   state = {
     text: '',
     myUsername: '',
-    tool: Tools.Pencil
+    tool: Tools.Pencil,
+    messages: []
   }
 
   constructor(props) {
@@ -49,16 +56,43 @@ class WhiteboardScreen extends Component {
   }
 
 
-  componentDidMount() {
+  async componentDidMount() {
 
     const { navigation } = this.props;
+    this.roomID = navigation.getParam("roomID");
+    this.myUserID = navigation.getParam("myUserID");
     this.myUsername = navigation.getParam("myUsername");
     this.pusher = navigation.getParam("pusher");
+    this.channelName = navigation.getParam("channelName");
     this.group_channel = navigation.getParam("group_channel");
 
     this.setState({
       myUsername: this.myUsername
     });
+
+    const tokenProvider = new Chatkit.TokenProvider({
+      url: CHATKIT_TOKEN_PROVIDER_ENDPOINT
+    });
+
+    const chatManager = new Chatkit.ChatManager({
+      instanceLocator: CHATKIT_INSTANCE_LOCATOR,
+      userId: this.myUserID,
+      tokenProvider: tokenProvider
+    });
+
+    try {
+      this.currentUser = await chatManager.connect();
+      await this.currentUser.subscribeToRoom({
+        roomId: this.roomID,
+        hooks: {
+          onMessage: this.onReceive
+        },
+        messageLimit: 10
+      });
+    } catch (err) {
+      console.log("cannot connect user to chatkit: ", err);
+    }
+
     
     let textGatherer = this._gatherText();
 
@@ -148,6 +182,15 @@ class WhiteboardScreen extends Component {
                 </div>
               </div>
             </div>
+            
+            {
+              this.currentUser &&
+              <ChatBox 
+                userID={this.myUserID} 
+                roomID={this.roomID}
+                currentUser={this.currentUser} 
+                messages={this.state.messages} />
+            }
 
           </Col>  
         </Row>
@@ -278,6 +321,32 @@ class WhiteboardScreen extends Component {
     this.updateOtherUsers(payload);
     this._sketch.removeSelected();
   }
+
+
+  onReceive = async (data) => {
+    let { message } = await this._getMessage(data);
+    await this.setState(prevState => ({
+      messages: [...prevState.messages, message]
+    }));
+  };
+  
+  //
+
+  _getMessage = async ({ id, senderId, sender, text }) => {
+    const msg_data = {
+      _id: id,
+      text: text,
+      user: {
+        _id: senderId,
+        name: sender.name
+      }
+    };
+
+    return {
+      message: msg_data
+    };
+  };
+
 
 }
 

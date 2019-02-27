@@ -46,3 +46,32 @@ code {
 	margin: 0 auto;
 	margin-top: 20px;
 }
+
+.ChatBox {
+	margin-top: 30px;
+}
+
+.MessageRow.Me {
+	float: right;
+	clear: both;
+}
+
+.MessageRow {
+	float: left;
+	clear: both;
+}
+
+.ChatBubble {
+	background: #d1e7ff;
+	margin-bottom: 10px;
+	padding: 10px;
+	border-radius: 10px;
+	text-align: left;
+	font-size: 14px;
+	vertical-align: text-bottom;
+	max-width: 250px;
+}
+
+.username {
+	font-weight: bold;
+}

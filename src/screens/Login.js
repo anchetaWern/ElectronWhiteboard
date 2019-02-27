@@ -1,6 +1,8 @@
 import React, { Component } from "react";
 import { Container, Row, Col, Button, Input } from 'reactstrap';
 import Pusher from "pusher-js";
+import axios from "axios";
+import stringHash from "string-hash";
 
 import uniquename from "../helpers/uniquename";
 
@@ -74,8 +76,8 @@ class LoginScreen extends Component {
 
 
   login = () => {
-
     const { myUsername, channelName } = this.state;
+    const myUserID = stringHash(myUsername).toString();
 
     this.setState({
       isLoading: true
@@ -92,15 +94,30 @@ class LoginScreen extends Component {
       console.log("error subscribing to group channel: ", status);
     });
 
-    this.group_channel.bind("pusher:subscription_succeeded", () => {
+    this.group_channel.bind("pusher:subscription_succeeded", async () => {
       console.log("subscription to group succeeded");
       
-      this.props.navigation.navigate("Whiteboard", {
-        myUsername,
-        pusher: this.pusher,
-        group_channel: this.group_channel
-      });
+      try {
+        const response = await axios.post(`${BASE_URL}/login`, {
+          user_id: myUserID,
+          username: myUsername,
+          channel: channelName
+        });
 
+        if (response.status === 200) {
+          this.props.navigation.navigate("Whiteboard", {
+            roomID: response.data.room_id,
+            channelName,
+            myUserID,
+            myUsername,
+            pusher: this.pusher,
+            group_channel: this.group_channel
+          });
+        }
+      } catch (e) {
+        console.log("error occured logging in: ", e);
+      }
+    
     });
 
   }  
