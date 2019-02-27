@@ -9,7 +9,7 @@ import Chatkit from '@pusher/chatkit-client';
 
 import ChatBox from '../components/ChatBox';
 
-const CHATKIT_TOKEN_PROVIDER_ENDPOINT = "https://us1.pusherplatform.io/services/chatkit_token_provider/v1/f3c34d9b-c94b-4094-a8a9-71404b4b0a63/token";
+const CHATKIT_TOKEN_PROVIDER_ENDPOINT = process.env.REACT_APP_CHATKIT_TEST_TOKEN_PROVIDER;
 const CHATKIT_INSTANCE_LOCATOR = process.env.REACT_APP_CHATKIT_INSTANCE_ID;
 
 class WhiteboardScreen extends Component {
