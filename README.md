@@ -1,6 +1,11 @@
 # ElectronWhiteboard
 A whiteboard app with a group chat feature. It's created with React, Electron, and Chatkit.
 
+You can read the tutorial at:
+
+- [Create a Whiteboard app with React - Part 1: Adding the whiteboard](https://pusher.com/tutorials/whiteboard-electron-react-part-1)
+- [Create a Whiteboard app with React - Part 2: Adding the group chat](https://pusher.com/tutorials/whiteboard-electron-react-part-2)
+
 ### Prerequisites
 
 - [Node.js](https://nodejs.org/en/)
