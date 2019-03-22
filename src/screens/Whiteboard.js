@@ -5,7 +5,7 @@ import { SketchField, Tools } from 'react-sketch';
 import { FaMousePointer, FaPen, FaCircle, FaSquare, FaTrash } from 'react-icons/fa';
 
 import shortid from 'shortid';
-import Chatkit from '@pusher/chatkit-client';
+import { ChatManager, TokenProvider } from '@pusher/chatkit-client';
 
 import ChatBox from '../components/ChatBox';
 
@@ -70,14 +70,10 @@ class WhiteboardScreen extends Component {
       myUsername: this.myUsername
     });
 
-    const tokenProvider = new Chatkit.TokenProvider({
-      url: CHATKIT_TOKEN_PROVIDER_ENDPOINT
-    });
-
-    const chatManager = new Chatkit.ChatManager({
+    const chatManager = new ChatManager({
       instanceLocator: CHATKIT_INSTANCE_LOCATOR,
       userId: this.myUserID,
-      tokenProvider: tokenProvider
+      tokenProvider: new TokenProvider({ url: CHATKIT_TOKEN_PROVIDER_ENDPOINT })
     });
 
     try {
